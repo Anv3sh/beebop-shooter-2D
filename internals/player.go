@@ -55,5 +55,14 @@ func (p *Player) shoot(speed float64){
 
 func (p *Player) generateLaser(){
 	p.LeftLaser = &Laser{Sprite:MustLoadImage(LASER_BLUE_16), XCoordinate: p.XCoordinate, YCoordinate: p.YCoordinate}
-	p.RightLaser = &Laser{Sprite:MustLoadImage(LASER_BLUE_16), XCoordinate: p.XCoordinate + float64(p.Sprite.Bounds().Dx()), YCoordinate: p.YCoordinate}
+	p.RightLaser = &Laser{Sprite:MustLoadImage(LASER_BLUE_16), XCoordinate: p.XCoordinate + float64(p.Sprite.Bounds().Dx())-5, YCoordinate: p.YCoordinate}
+}
+
+func (p *Player) deleteLaser(windowW float64, windowH float64){
+	if p.LeftLaser != nil && p.RightLaser != nil{
+		if p.LeftLaser.isLaserOutOfBounds(windowW, windowH) && p.RightLaser.isLaserOutOfBounds(windowW, windowH){
+			p.LeftLaser=nil
+			p.RightLaser=nil
+		}
+	}
 }

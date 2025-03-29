@@ -23,6 +23,16 @@ func (g *Game) Update() error {
 	if g.ScrollY >= float64(h) {
 		g.ScrollY = 0 // reset to loop
 	}
+	g.Player.deleteLaser(g.WindowW, g.WindowH)
+
+	// log to check if the laser was getting destroyed if out of bounds
+	// if g.Player.LeftLaser != nil{
+	// 	fmt.Println("NO")
+	// }
+	// if g.Player.LeftLaser == nil{
+	// 	fmt.Println("YES")
+	// }
+
 	g.Player.shoot(speed)
 	g.Player.move(speed)
 
