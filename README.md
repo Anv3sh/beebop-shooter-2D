@@ -8,3 +8,13 @@ So here is my first game written in Go
 
 ## Assets:
 The assets used in this game belongs to Kenney Vleugels (www.kenney.nl).
+
+## How to run:
+```shell
+go run main.go
+```
+
+## Basic controls:
+1. Movement -> W(up), A(left), S(down), D(right)
+2. Shoot -> X
+3. Quit -> Q
