@@ -11,14 +11,18 @@ const speed = 3.0
 
 type Game struct{
 	Player *Player
-	
 	WindowW float64
 	WindowH float64
 	Space *ebiten.Image
+	ScrollY float64
 }
 
 func (g *Game) Update() error {
-	
+	g.ScrollY += 1 // speed of scrolling
+	h := g.Space.Bounds().Dy()
+	if g.ScrollY >= float64(h) {
+		g.ScrollY = 0 // reset to loop
+	}
 	g.Player.shoot(speed)
 	g.Player.move(speed)
 
@@ -35,13 +39,27 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	opBack:= &ebiten.DrawImageOptions{}
+	// opBack:= &ebiten.DrawImageOptions{}
 	opPlayer := &ebiten.DrawImageOptions{}
 	opLeftLaser := &ebiten.DrawImageOptions{}
 	opRightLaser := &ebiten.DrawImageOptions{}
 
-	opBack.GeoM.Scale(2.5,2)
+	h := g.Space.Bounds().Dy()
+	hf := float64(h)
 
+	// First background
+	opBack1 := &ebiten.DrawImageOptions{}
+	opBack1.GeoM.Scale(2.5,2)
+	opBack1.GeoM.Translate(0, g.ScrollY)
+	screen.DrawImage(g.Space, opBack1)
+
+	// Second background (above it)
+	opBack2 := &ebiten.DrawImageOptions{}
+	opBack2.GeoM.Scale(2.5,2)
+	opBack2.GeoM.Translate(0, g.ScrollY - hf)
+	screen.DrawImage(g.Space, opBack2)
+
+	// screen.DrawImage(g.Space, opBack)
 	// lasers
 	if g.Player.LeftLaser != nil && g.Player.RightLaser !=nil{
 		opLeftLaser.GeoM.Scale(0.5,0.5)
@@ -59,7 +77,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// opBack.GeoM.Scale()
 	// opPlayer.GeoM.Rotate(45.0 * math.Pi / 180.0)
 
-	screen.DrawImage(g.Space, opBack)
+	// screen.DrawImage(g.Space, opBack)
 	if g.Player.LeftLaser != nil && g.Player.RightLaser != nil{
 		screen.DrawImage(g.Player.LeftLaser.Sprite,opLeftLaser)
 		screen.DrawImage(g.Player.RightLaser.Sprite,opRightLaser)
