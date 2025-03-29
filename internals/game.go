@@ -11,19 +11,15 @@ const speed = 3.0
 
 type Game struct{
 	Player *Player
-	LeftLaser *Laser
-	RightLaser *Laser
+	
 	WindowW float64
 	WindowH float64
 	Space *ebiten.Image
 }
 
 func (g *Game) Update() error {
-	if g.LeftLaser != nil && g.RightLaser!=nil{
-		g.LeftLaser.Move(speed)
-		g.RightLaser.Move(speed)
-	}
 	
+	g.Player.shoot(speed)
 	g.Player.move(speed)
 
 	if ebiten.IsKeyPressed(ebiten.KeyQ){
@@ -33,8 +29,7 @@ func (g *Game) Update() error {
 	g.Player.clamp_player(g.WindowW, g.WindowH)
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyX){
-		g.LeftLaser = &Laser{Sprite:MustLoadImage(LASER_BLUE_16), XCoordinate: g.Player.XCoordinate, YCoordinate: g.Player.YCoordinate}
-		g.RightLaser = &Laser{Sprite:MustLoadImage(LASER_BLUE_16), XCoordinate: g.Player.XCoordinate + float64(g.Player.Sprite.Bounds().Dx()), YCoordinate: g.Player.YCoordinate}
+		g.Player.generateLaser()
 	}
 	return nil
 }
@@ -48,12 +43,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	opBack.GeoM.Scale(2.5,2)
 
 	// lasers
-	if g.LeftLaser != nil && g.RightLaser !=nil{
+	if g.Player.LeftLaser != nil && g.Player.RightLaser !=nil{
 		opLeftLaser.GeoM.Scale(0.5,0.5)
-		opLeftLaser.GeoM.Translate(g.LeftLaser.XCoordinate, g.LeftLaser.YCoordinate)
+		opLeftLaser.GeoM.Translate(g.Player.LeftLaser.XCoordinate, g.Player.LeftLaser.YCoordinate)
 
 		opRightLaser.GeoM.Scale(0.5,0.5)
-		opRightLaser.GeoM.Translate(g.RightLaser.XCoordinate, g.RightLaser.YCoordinate)
+		opRightLaser.GeoM.Translate(g.Player.RightLaser.XCoordinate, g.Player.RightLaser.YCoordinate)
 	}
 	opPlayer.GeoM.Translate(g.Player.XCoordinate, g.Player.YCoordinate)
 
@@ -65,9 +60,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	// opPlayer.GeoM.Rotate(45.0 * math.Pi / 180.0)
 
 	screen.DrawImage(g.Space, opBack)
-	if g.LeftLaser != nil && g.RightLaser != nil{
-		screen.DrawImage(g.LeftLaser.Sprite,opLeftLaser)
-		screen.DrawImage(g.RightLaser.Sprite,opRightLaser)
+	if g.Player.LeftLaser != nil && g.Player.RightLaser != nil{
+		screen.DrawImage(g.Player.LeftLaser.Sprite,opLeftLaser)
+		screen.DrawImage(g.Player.RightLaser.Sprite,opRightLaser)
 	}
 	screen.DrawImage(g.Player.Sprite, opPlayer)
 
