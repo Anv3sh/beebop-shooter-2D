@@ -30,3 +30,10 @@ func (l *Laser) isLaserOutOfBounds(windowW float64, windowH float64) bool {
 	}
 	return false
 }
+
+func (l *Laser) drawLaser(screen *ebiten.Image){
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(0.5,0.5)
+	op.GeoM.Translate(l.XCoordinate, l.YCoordinate)
+	screen.DrawImage(l.Sprite,op)
+}
