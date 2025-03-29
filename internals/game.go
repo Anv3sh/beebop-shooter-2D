@@ -32,7 +32,7 @@ func GameInitAndRun() error{
 		Space: MustLoadImage(SPACE_BACKGROUND_PURPLE),
 	}
 	ebiten.SetWindowSize(int(g.WindowW),int(g.WindowH))
-	ebiten.SetWindowTitle("Space Shooter 2D")
+	ebiten.SetWindowTitle("Beebop Shooter 2D")
 	return ebiten.RunGame(g)
 
 }
