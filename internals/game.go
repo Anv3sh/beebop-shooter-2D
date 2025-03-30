@@ -1,7 +1,10 @@
 package internals
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	// "math"
 )
@@ -83,8 +86,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.Space.drawSpace(screen)
 	// Draw Player and Lasers
 	g.Player.drawPlayer(screen)
-	
-
+	ebitenutil.DebugPrintAt(screen, fmt.Sprint(g.Player.Score), int(g.WindowW)-30,1)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {

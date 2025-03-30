@@ -14,6 +14,7 @@ type Player struct{
 	MoveSpeed float64
 	SpawnTick float64
 	SpawnRate float64
+	Score int
 	// Scale float64
 }
 
@@ -144,6 +145,7 @@ func (p *Player) checkLaserCollision(space *Space) {
 			) {
 				hitMap[meteor] = true
 				hit = true
+				p.updateScore(METEOR)
 				break
 			}
 		}
@@ -167,6 +169,7 @@ func (p *Player) checkLaserCollision(space *Space) {
 			) {
 				hitMap[meteor] = true
 				hit = true
+				p.updateScore(METEOR)
 				break
 			}
 		}
@@ -186,4 +189,11 @@ func (p *Player) checkLaserCollision(space *Space) {
 	p.LeftLaser = newLeftLasers
 	p.RightLaser = newRightLasers
 	space.Meteors = newMeteors
+}
+
+
+func (p *Player) updateScore(enemyType string){
+	if enemyType == METEOR{
+		p.Score+=1
+	}
 }
