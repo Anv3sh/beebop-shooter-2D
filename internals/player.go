@@ -118,8 +118,22 @@ func (p *Player) drawPlayer(screen *ebiten.Image){
 	screen.DrawImage(p.Sprite, op)
 }
 
-func (p *Player) checkPlayerCollision(space *Space){
-
+func (p *Player) checkPlayerCollision(space *Space) bool{
+	for _, meteor := range space.Meteors{
+		if isColliding(
+			p.XCoordinate,
+			p.YCoordinate,
+			float64(p.Sprite.Bounds().Dx()),
+			float64(p.Sprite.Bounds().Dy()),
+			meteor.XCoordinate,
+			meteor.YCoordinate,
+			float64(meteor.Sprite.Bounds().Dx()),
+			float64(meteor.Sprite.Bounds().Dy()),
+		){
+			return true
+		}
+	}
+	return false
 }
 
 func (p *Player) checkLaserCollision(space *Space) {
