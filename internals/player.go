@@ -12,6 +12,8 @@ type Player struct{
 	RightLaser []*Laser
 	ShootSpeed float64
 	MoveSpeed float64
+	SpawnTick float64
+	SpawnRate float64
 	// Scale float64
 }
 
@@ -61,8 +63,13 @@ func (p *Player) shoot(){
 }
 
 func (p *Player) generateLaser(){
+	if p.SpawnTick>0{
+		p.SpawnTick--
+		return
+	}
 	p.LeftLaser = append(p.LeftLaser, &Laser{Sprite:MustLoadImage(LASER_BLUE_16), XCoordinate: p.XCoordinate, YCoordinate: p.YCoordinate,})
-	p.RightLaser = append(p.RightLaser, &Laser{Sprite:MustLoadImage(LASER_BLUE_16), XCoordinate: p.XCoordinate + float64(p.Sprite.Bounds().Dx())-5, YCoordinate: p.YCoordinate,})
+	p.RightLaser = append(p.RightLaser, &Laser{Sprite:MustLoadImage(LASER_BLUE_16), XCoordinate: p.XCoordinate + float64(p.Sprite.Bounds().Dx())-30, YCoordinate: p.YCoordinate,})
+	p.SpawnTick = p.SpawnRate
 }
 
 func (p *Player) reloadLaser(windowW float64, windowH float64){
@@ -105,6 +112,78 @@ func (p *Player) drawPlayer(screen *ebiten.Image){
 		laser.drawLaser(screen)
 	}
 	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(0.75,0.75)
 	op.GeoM.Translate(p.XCoordinate, p.YCoordinate)
 	screen.DrawImage(p.Sprite, op)
+}
+
+func (p *Player) checkPlayerCollision(space *Space){
+
+}
+
+func (p *Player) checkLaserCollision(space *Space) {
+	newLeftLasers := []*Laser{}
+	newRightLasers := []*Laser{}
+	newMeteors := []*Meteor{}
+
+	// track which meteors got hit
+	hitMap := make(map[*Meteor]bool)
+
+	// check left lasers
+	for _, laser := range p.LeftLaser {
+		hit := false
+		for _, meteor := range space.Meteors {
+			if hitMap[meteor] {
+				continue // already hit
+			}
+			if isColliding(
+				laser.XCoordinate, laser.YCoordinate,
+				float64(laser.Sprite.Bounds().Dx()), float64(laser.Sprite.Bounds().Dy()),
+				meteor.XCoordinate, meteor.YCoordinate,
+				float64(meteor.Sprite.Bounds().Dx()), float64(meteor.Sprite.Bounds().Dy()),
+			) {
+				hitMap[meteor] = true
+				hit = true
+				break
+			}
+		}
+		if !hit {
+			newLeftLasers = append(newLeftLasers, laser)
+		}
+	}
+
+	// check right lasers
+	for _, laser := range p.RightLaser {
+		hit := false
+		for _, meteor := range space.Meteors {
+			if hitMap[meteor] {
+				continue
+			}
+			if isColliding(
+				laser.XCoordinate, laser.YCoordinate,
+				float64(laser.Sprite.Bounds().Dx()), float64(laser.Sprite.Bounds().Dy()),
+				meteor.XCoordinate, meteor.YCoordinate,
+				float64(meteor.Sprite.Bounds().Dx()), float64(meteor.Sprite.Bounds().Dy()),
+			) {
+				hitMap[meteor] = true
+				hit = true
+				break
+			}
+		}
+		if !hit {
+			newRightLasers = append(newRightLasers, laser)
+		}
+	}
+
+	// rebuild the meteor list (only non-hit ones)
+	for _, meteor := range space.Meteors {
+		if !hitMap[meteor] {
+			newMeteors = append(newMeteors, meteor)
+		}
+	}
+
+	// assign updated slices
+	p.LeftLaser = newLeftLasers
+	p.RightLaser = newRightLasers
+	space.Meteors = newMeteors
 }
