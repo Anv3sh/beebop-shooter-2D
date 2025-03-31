@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/Anv3sh/test_game/internals"
+	"github.com/Anv3sh/bebop-shooter-2d/internals"
 )
 
 
