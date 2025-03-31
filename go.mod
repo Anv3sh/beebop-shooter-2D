@@ -1,4 +1,4 @@
-module github.com/Anv3sh/bebop-shooter-2d
+module github.com/Anv3sh/bebop-shooter-2D
 
 go 1.23.4
 
