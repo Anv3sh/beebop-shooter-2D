@@ -180,6 +180,7 @@ func (p *Player) checkLaserCollision(space *Space) {
 				laser.HitTimer = 2
 				meteor.HitTimer = 3
 				meteor.Destroyed = true
+				go MustPlay(LASER_HIT_SOUND)
 				break
 			}
 		}
@@ -212,6 +213,7 @@ func (p *Player) checkLaserCollision(space *Space) {
 				laser.HitTimer = 2
 				meteor.HitTimer = 3
 				meteor.Destroyed = true
+				go MustPlay(LASER_HIT_SOUND)
 				break
 			}
 		}
