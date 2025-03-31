@@ -15,6 +15,10 @@ import (
 
 const speed = 3.0
 
+const defaultWindowW = 640
+const defaultWindowH = 480
+
+
 type Game struct{
 	Player *Player
 	WindowW float64
@@ -28,16 +32,16 @@ func GameInitAndRun() error{
 	g := &Game{
 		Player: &Player{
 			Sprite: MustLoadImage(RAPTOR),
-			XCoordinate: 250,
-			YCoordinate: 200,
+			XCoordinate: float64(defaultWindowW/2 - MustLoadImage(RAPTOR).Bounds().Dx()),
+			YCoordinate: defaultWindowH-30,
 			LeftLaser: []*Laser{},
 			RightLaser: []*Laser{},
 			ShootSpeed: 2,
 			MoveSpeed: 2.5,
 			SpawnRate: 0.1,
 		},
-		WindowW: 640, 
-		WindowH: 480, 
+		WindowW: defaultWindowW, 
+		WindowH: defaultWindowH, 
 		Space: &Space{
 			Sprite: MustLoadImage(SPACE_BACKGROUND_PURPLE),
 			Meteors: []*Meteor{},
@@ -45,7 +49,7 @@ func GameInitAndRun() error{
 		},
 	}
 	ebiten.SetWindowSize(int(g.WindowW),int(g.WindowH))
-	ebiten.SetWindowTitle("Beebop Shooter 2D")
+	ebiten.SetWindowTitle("Bebop Shooter 2D")
 	return ebiten.RunGame(g)
 
 }
@@ -123,6 +127,8 @@ func(g *Game) resetGame(){
 	g.Player.LeftLaser = []*Laser{}
 	g.Player.RightLaser = []*Laser{}
 	g.Player.Score = 0
+	g.Player.XCoordinate = float64(defaultWindowW/2 - g.Player.Sprite.Bounds().Dx())
+	g.Player.YCoordinate = defaultWindowH-30
 }
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
