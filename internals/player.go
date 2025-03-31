@@ -54,13 +54,22 @@ func (p *Player) clamp_player(windowW float64, windowH float64){
 }
 
 func (p *Player) shoot(){
+	leftfiltered := []*Laser{}
 	for _, laser := range p.LeftLaser {
-		laser.YCoordinate -= p.ShootSpeed
+		hit := laser.Update(p.ShootSpeed)
+		if !hit{
+			leftfiltered = append(leftfiltered, laser)
+		}
 	}
-
+	p.LeftLaser = leftfiltered
+	rightfiltered := []*Laser{}
 	for _, laser := range p.RightLaser {
-		laser.YCoordinate -= p.ShootSpeed
+		hit := laser.Update(p.ShootSpeed)
+		if !hit{
+			rightfiltered = append(rightfiltered, laser)
+		}
 	}
+	p.RightLaser = rightfiltered
 }
 
 func (p *Player) generateLaser(){
@@ -120,6 +129,9 @@ func (p *Player) drawPlayer(screen *ebiten.Image){
 
 func (p *Player) checkPlayerCollision(space *Space) bool{
 	for _, meteor := range space.Meteors{
+		if meteor.Destroyed{
+			continue
+		}
 		if isColliding(
 			p.XCoordinate,
 			p.YCoordinate,
@@ -137,18 +149,21 @@ func (p *Player) checkPlayerCollision(space *Space) bool{
 }
 
 func (p *Player) checkLaserCollision(space *Space) {
-	newLeftLasers := []*Laser{}
-	newRightLasers := []*Laser{}
-	newMeteors := []*Meteor{}
+	// newLeftLasers := []*Laser{}
+	// newRightLasers := []*Laser{}
+	// newMeteors := []*Meteor{}
 
 	// track which meteors got hit
-	hitMap := make(map[*Meteor]bool)
+	// hitMap := make(map[*Meteor]bool)
 
 	// check left lasers
 	for _, laser := range p.LeftLaser {
-		hit := false
+		if laser.Hit{
+			continue
+		}
+		// hit := false
 		for _, meteor := range space.Meteors {
-			if hitMap[meteor] {
+			if meteor.Destroyed {
 				continue // already hit
 			}
 			if isColliding(
@@ -157,22 +172,30 @@ func (p *Player) checkLaserCollision(space *Space) {
 				meteor.XCoordinate, meteor.YCoordinate,
 				float64(meteor.Sprite.Bounds().Dx()), float64(meteor.Sprite.Bounds().Dy()),
 			) {
-				hitMap[meteor] = true
-				hit = true
+				// hitMap[meteor] = true
+				// hit = true
 				p.updateScore(METEOR)
+				laser.Sprite=MustLoadImage(LASER_BLUE_COLLIDED)
+				laser.Hit = true
+				laser.HitTimer = 2
+				meteor.HitTimer = 3
+				meteor.Destroyed = true
 				break
 			}
 		}
-		if !hit {
-			newLeftLasers = append(newLeftLasers, laser)
-		}
+		// if !hit {
+		// 	newLeftLasers = append(newLeftLasers, laser)
+		// }
 	}
 
 	// check right lasers
 	for _, laser := range p.RightLaser {
-		hit := false
+		if laser.Hit{
+			continue
+		}
+		// hit := false
 		for _, meteor := range space.Meteors {
-			if hitMap[meteor] {
+			if meteor.Destroyed {
 				continue
 			}
 			if isColliding(
@@ -181,28 +204,33 @@ func (p *Player) checkLaserCollision(space *Space) {
 				meteor.XCoordinate, meteor.YCoordinate,
 				float64(meteor.Sprite.Bounds().Dx()), float64(meteor.Sprite.Bounds().Dy()),
 			) {
-				hitMap[meteor] = true
-				hit = true
+				// hitMap[meteor] = true
+				// hit = true
 				p.updateScore(METEOR)
+				laser.Sprite=MustLoadImage(LASER_BLUE_COLLIDED)
+				laser.Hit = true
+				laser.HitTimer = 2
+				meteor.HitTimer = 3
+				meteor.Destroyed = true
 				break
 			}
 		}
-		if !hit {
-			newRightLasers = append(newRightLasers, laser)
-		}
+		// if !hit {
+		// 	newRightLasers = append(newRightLasers, laser)
+		// }
 	}
 
 	// rebuild the meteor list (only non-hit ones)
-	for _, meteor := range space.Meteors {
-		if !hitMap[meteor] {
-			newMeteors = append(newMeteors, meteor)
-		}
-	}
+	// for _, meteor := range space.Meteors {
+	// 	if !hitMap[meteor] {
+	// 		newMeteors = append(newMeteors, meteor)
+	// 	}
+	// }
 
 	// assign updated slices
-	p.LeftLaser = newLeftLasers
-	p.RightLaser = newRightLasers
-	space.Meteors = newMeteors
+	// p.LeftLaser = newLeftLasers
+	// p.RightLaser = newRightLasers
+	// space.Meteors = newMeteors
 }
 
 

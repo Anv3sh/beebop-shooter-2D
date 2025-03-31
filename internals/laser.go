@@ -6,11 +6,18 @@ type Laser struct{
 	Sprite *ebiten.Image
 	XCoordinate float64
 	YCoordinate float64
+	Hit bool
+	HitTimer int
 }
 
 
-func (l *Laser) Move(speed float64){
+func (l *Laser) Update(speed float64) bool{
+	if l.Hit && l.HitTimer<=0{
+		return true
+	}
 	l.YCoordinate -= speed
+	l.HitTimer--
+	return false
 }
 
 func (l *Laser) isLaserOutOfBounds(windowW float64, windowH float64) bool {

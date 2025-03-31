@@ -74,7 +74,7 @@ func (g *Game) Update() error {
 		g.Player.generateLaser()
 	}
 
-	g.Space.moveMeteors()
+	g.Space.updateMeteors()
 	g.Player.shoot()
 
 	g.Player.reloadLaser(g.WindowW, g.WindowH)

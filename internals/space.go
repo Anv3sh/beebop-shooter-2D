@@ -44,10 +44,15 @@ func (s *Space) drawSpace(screen *ebiten.Image){
 	}
 }
 
-func (s *Space) moveMeteors(){
+func (s *Space) updateMeteors(){
+	filtered := []*Meteor{}
 	for _, meteor := range s.Meteors{
-		meteor.moveMeteor()
+		dead := meteor.updateMeteor()
+		if !dead{
+			filtered = append(filtered, meteor)
+		}
 	}
+	s.Meteors = filtered
 }
 
 
