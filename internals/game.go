@@ -2,12 +2,15 @@ package internals
 
 import (
 	"fmt"
+	"time"
 
 	"image/color"
 
+	soundhandler "github.com/Anv3sh/bebop-shooter-2D/internals/sound_handler"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+
 	// "github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	// "math"
@@ -26,6 +29,10 @@ type Game struct{
 	Space *Space
 	ScrollY float64
 	GameOver bool
+	GameSpeed float64
+	Timestamp time.Time
+	Level int
+	LevelDisplayCounter int
 }
 
 func GameInitAndRun() error{
@@ -36,9 +43,9 @@ func GameInitAndRun() error{
 			YCoordinate: defaultWindowH-30,
 			LeftLaser: []*Laser{},
 			RightLaser: []*Laser{},
-			ShootSpeed: 2,
+			ShootSpeed: 3,
 			MoveSpeed: 2.5,
-			SpawnRate: 0.1,
+			SpawnRate: 0.08,
 		},
 		WindowW: defaultWindowW, 
 		WindowH: defaultWindowH, 
@@ -47,9 +54,14 @@ func GameInitAndRun() error{
 			Meteors: []*Meteor{},
 			SpawnRate: 60,
 		},
+		GameSpeed: 1,
+		Timestamp: time.Now(),
+		Level: 1,
+		LevelDisplayCounter: 0,
 	}
 	ebiten.SetWindowSize(int(g.WindowW),int(g.WindowH))
 	ebiten.SetWindowTitle("Bebop Shooter 2D")
+	soundhandler.MustPlay(soundhandler.BGM,true)
 	return ebiten.RunGame(g)
 
 }
@@ -58,6 +70,11 @@ func (g *Game) Update() error {
 	if g.GameOver && ebiten.IsKeyPressed(ebiten.KeyR){
 		g.resetGame()
 	}
+
+	if !g.GameOver{
+		g.updateLevel()
+	}
+
 	if ebiten.IsKeyPressed(ebiten.KeyQ){
 		return ebiten.Termination
 	}
@@ -66,15 +83,15 @@ func (g *Game) Update() error {
 
 		return nil
 	}
-	g.Space.scrollSpace()
+	g.Space.scrollSpace(g.GameSpeed)
 	g.Player.move()
 	// clamp player if goes out of bounds
 	g.Player.clamp_player(g.WindowW, g.WindowH)
 
 	// check laser and metor collision
 	g.Player.checkLaserCollision(g.Space)
-	g.Space.spawnMeteor(g.WindowW)
-	if inpututil.IsKeyJustPressed(ebiten.KeyX){
+	g.Space.spawnMeteor(g.WindowW, g.GameSpeed)
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) || inpututil.IsKeyJustPressed(ebiten.KeyX){
 		g.Player.generateLaser()
 	}
 
@@ -82,14 +99,6 @@ func (g *Game) Update() error {
 	g.Player.shoot()
 
 	g.Player.reloadLaser(g.WindowW, g.WindowH)
-
-	// log to check if the laser was getting destroyed if out of bounds
-	// if len(g.Player.LeftLaser)>0 && g.Player.LeftLaser[0] != nil{
-	// 	fmt.Println("NO")
-	// }
-	// if len(g.Player.LeftLaser)>0 && g.Player.LeftLaser[0] == nil{
-	// 	fmt.Println("YES")
-	// }
 	g.Space.destroyMeteor(g.WindowW,g.WindowH)
 	
 	return nil
@@ -100,8 +109,17 @@ func (g *Game) Draw(screen *ebiten.Image) {
         g.drawFinalScreen(screen)
         return
     }
+	
 	// Draw space and surroundings
 	g.Space.drawSpace(screen)
+	if g.LevelDisplayCounter > 0{
+		fmt.Println("level change")
+		text := fmt.Sprintf("STAGE %d", g.Level)
+		var x, y = int(g.WindowW/2), int(g.WindowH/2)
+		textWidth, _ :=getTextWidthAndHeight(text)
+		ebitenutil.DebugPrintAt(screen, text, x-textWidth/2,y)
+		g.LevelDisplayCounter--
+	}
 	// Draw Player and Lasers
 	g.Player.drawPlayer(screen)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprint(g.Player.Score), int(g.WindowW)-30,1)
@@ -129,6 +147,22 @@ func(g *Game) resetGame(){
 	g.Player.Score = 0
 	g.Player.XCoordinate = float64(defaultWindowW/2 - g.Player.Sprite.Bounds().Dx())
 	g.Player.YCoordinate = defaultWindowH-30
+	g.Space.ScrollY=0
+	g.GameSpeed=1
+	g.Level=1
+	g.LevelDisplayCounter=0
+}
+
+func (g *Game) updateLevel(){
+	timeDiff := time.Now().Sub(g.Timestamp)
+	if timeDiff.Seconds() > 15 {
+		g.Level+=1
+		g.LevelDisplayCounter = 120
+		g.GameSpeed+=0.2
+		g.Space.updateMeteorSpeed(g.GameSpeed)
+		g.Timestamp = time.Now()
+		fmt.Println("game speed increase: ", g.GameSpeed)
+	}
 }
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight

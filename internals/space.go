@@ -1,6 +1,8 @@
 package internals
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 
 
@@ -14,8 +16,8 @@ type Space struct{
 	// Enemies *[]Enemy
 }
 
-func (s *Space) scrollSpace(){
-	s.ScrollY += 1 // speed of scrolling
+func (s *Space) scrollSpace(gameSpeed float64){
+	s.ScrollY += 1+gameSpeed // speed of scrolling
 	h := s.Sprite.Bounds().Dy()
 	if s.ScrollY >= float64(h) {
 		s.ScrollY = 0 // reset to loop
@@ -55,13 +57,20 @@ func (s *Space) updateMeteors(){
 	s.Meteors = filtered
 }
 
+func (s *Space) updateMeteorSpeed(gameSpeed float64){
+	for _, meteor := range s.Meteors{
+		if !meteor.Destroyed{
+			meteor.Speed = meteor.Speed*gameSpeed
+		}
+	}
+}
 
-func (s *Space) spawnMeteor(windowW float64){
+func (s *Space) spawnMeteor(windowW float64, gameSpeed float64){
 	if s.SpawnTick >0 {
 		s.SpawnTick--
 		return
 	}
-	s.Meteors = append(s.Meteors,generateMeteor(windowW))
+	s.Meteors = append(s.Meteors,generateMeteor(windowW,gameSpeed))
 
 	s.SpawnTick = s.SpawnRate
 }

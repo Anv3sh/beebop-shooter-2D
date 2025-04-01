@@ -1,6 +1,7 @@
 package internals
 
 import (
+	soundhandler "github.com/Anv3sh/bebop-shooter-2D/internals/sound_handler"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -180,7 +181,7 @@ func (p *Player) checkLaserCollision(space *Space) {
 				laser.HitTimer = 2
 				meteor.HitTimer = 3
 				meteor.Destroyed = true
-				go MustPlay(LASER_HIT_SOUND)
+				go soundhandler.MustPlay(soundhandler.LASER_HIT_SOUND, false)
 				break
 			}
 		}
@@ -213,7 +214,7 @@ func (p *Player) checkLaserCollision(space *Space) {
 				laser.HitTimer = 2
 				meteor.HitTimer = 3
 				meteor.Destroyed = true
-				go MustPlay(LASER_HIT_SOUND)
+				go soundhandler.MustPlay(soundhandler.LASER_HIT_SOUND, false)
 				break
 			}
 		}

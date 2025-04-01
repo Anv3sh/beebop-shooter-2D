@@ -11,8 +11,3 @@ const(
 	METEOR_MED = "assets/kenney_redux/PNG/Meteors/meteorBrown_med1.png"
 	METEOR = "meteor"
 )
-
-// sound effects
-const(
-	LASER_HIT_SOUND = "sounds/hit1.mp3"
-)

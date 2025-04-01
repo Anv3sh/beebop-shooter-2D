@@ -18,12 +18,12 @@ type Meteor struct{
 	Destroyed bool
 }
 
-func generateMeteor(windowW float64) *Meteor{
+func generateMeteor(windowW float64, gameSpeed float64) *Meteor{
 	return &Meteor{
 		Sprite: MustLoadImage(METEOR_MED), 
 		XCoordinate: float64(rand.Intn(int(windowW))), 
 		YCoordinate: -10.0,
-		Speed: 2,
+		Speed: 2*gameSpeed,
 	}
 }
 
