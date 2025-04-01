@@ -70,6 +70,7 @@ func (p *Player) shoot(){
 		}
 	}
 	p.RightLaser = rightfiltered
+	//fmt.Println()
 }
 
 func (p *Player) generateLaser(){
