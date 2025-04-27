@@ -85,6 +85,7 @@ func (g *Game) Update() error {
 	}
 	g.Space.scrollSpace(g.GameSpeed)
 	g.Player.move()
+	fmt.Println("hello")
 	// clamp player if goes out of bounds
 	g.Player.clamp_player(g.WindowW, g.WindowH)
 
